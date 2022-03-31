@@ -1,7 +1,6 @@
 import React from 'react'
 
 const Persons = (props) => {
-  console.log('Calling persons')
   return(
     <div>
       {props.persons
