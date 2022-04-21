@@ -1,4 +1,5 @@
 import React from 'react'
+import personService from '../services/personService'
 
 const PersonForm = (props) => {
   const handleNameChange = (event) => {
@@ -12,8 +13,29 @@ const PersonForm = (props) => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    if (props.persons.some(person => person.name === props.newName)) {
-      window.alert(`The name ${props.newName} is already present`)
+    const foundPerson = props.persons.find(person => 
+      person.name.normalize() === props.newName.normalize()
+    )
+      
+    if (foundPerson !== undefined) {
+      const result = window.confirm(
+        `The name ${props.newName} is already present, replace number?`
+      )
+
+      if (result) {
+        const changedPerson = {...foundPerson, number: props.newNumber}
+        
+        personService
+          .update(foundPerson.id, changedPerson)
+          .then(returnedPerson =>
+            props.setPersons(props.persons.map(
+                person => person.id !== foundPerson.id ? person : returnedPerson
+              )
+            )
+          )
+      } else {
+        console.log("aborted update");
+      }
     } else {
       const personObject = {
         name: props.newName,
@@ -21,8 +43,13 @@ const PersonForm = (props) => {
         id: props.persons.length + 1
       }
   
-      props.setPersons(props.persons.concat(personObject))
-      props.setNewName('')
+      personService
+        .create(personObject)
+        .then(returnedPerson => {
+          props.setPersons(props.persons.concat(returnedPerson))
+          props.setNewName('')
+          props.setNewNumber('')
+        })
     }
   }
   
