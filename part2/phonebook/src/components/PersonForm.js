@@ -1,7 +1,7 @@
-import React from 'react'
 import personService from '../services/personService'
 
 const PersonForm = (props) => {
+  
   const handleNameChange = (event) => {
     props.setNewName(event.target.value)
   }
@@ -33,6 +33,14 @@ const PersonForm = (props) => {
               )
             )
           )
+          .catch(error => {
+            props.setMessageStatus('red')
+            props.setMessage(`'${foundPerson.name}' was already removed from server`)
+            setTimeout(() => {
+              props.setMessageStatus(null)
+              props.setMessage(null)
+            }, 5000)
+          })
       } else {
         console.log("aborted update");
       }
@@ -46,6 +54,10 @@ const PersonForm = (props) => {
       personService
         .create(personObject)
         .then(returnedPerson => {
+          props.setMessage(`Added ${personObject.name}`)
+          setTimeout(() => {
+            props.setMessage(null)
+          }, 5000) 
           props.setPersons(props.persons.concat(returnedPerson))
           props.setNewName('')
           props.setNewNumber('')
